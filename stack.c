@@ -202,7 +202,7 @@ int checkParen(struct Stack *st, char *string) {
 }
 
 int main() {
-    char *string = "((({{[{{}}]}})))))";
+    char *string = "{[{[[(())]]}]})";
     int len = strlen(string);
 
     struct Stack *st = createStack(20, 0);

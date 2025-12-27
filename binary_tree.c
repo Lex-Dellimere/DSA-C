@@ -1,96 +1,113 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 
-typedef struct BSTNode {
-    int value;
-    struct BSTNode *right;
-    struct BSTNode *left;
+typedef struct Node {
+  int value;
+  struct Node *parent;
+  struct Node *right;
+  struct Node *left;
+} Node;
 
-} BSTNode;
+// init a node in the BST
+Node *insert(Node *node, int value) {
+  if (!node) {
+    // init a new node
+    Node *new_node = malloc(sizeof(Node));
+    new_node->value = value;
+    new_node->parent = NULL;
+    new_node->right = NULL;
+    new_node->left = NULL;
 
-BSTNode *createBSTNode(int value) {
-    BSTNode *node = malloc(sizeof(BSTNode));
-    node->value = value;
-    node->right = NULL;
-    node->left = NULL;
-    return node;
+    return new_node;
+  }
+
+  if (value < node->value) {
+    node->left = insert(node->left, value);
+    node->left->parent = node;
+  } else {
+    node->right = insert(node->right, value);
+    node->right->parent = node;
+  }
+  return node;
 }
 
-BSTNode *insert(BSTNode *root, int value) {
-    if (!root)
-        return createBSTNode(value);
-
-    if (value < root->value)
-        root->left = insert(root->left, value);
-    else if (value > root->value)
-        root->right = insert(root->right, value);
-
-    return root;
-}
-
-void inorderTraversal(BSTNode *root) {
-    if (root) {
-        inorderTraversal(root->left);
-        printf("%d ", root->value);
-        inorderTraversal(root->right);
+// find a node and return its memory location in the BST
+Node *find(Node *node, int value) {
+  Node *current = node;
+  while (current && current->value != value) {
+    if (value < current->value) {
+      current = current->left;
+    } else {
+      current = current->right;
     }
+  }
+  if (current)
+    return current;
+  return NULL;
 }
 
-void preorderTraversal(BSTNode *root) {
-    if (root) {
-        printf("%d ", root->value);
-        preorderTraversal(root->left);
-        preorderTraversal(root->right);
-    }
+void free_BST(Node *node) {
+  if (!node)
+    return;
+  free_BST(node->left);
+  free_BST(node->right);
+  free(node);
 }
 
-void printTree(BSTNode *root, int space) {
-    if (!root)
-        return;
+// traversal
+void in_order(Node *node) {
+  if (!node)
+    return;
 
-    space += 5;
-
-    printTree(root->right, space);
-
-    printf("\n");
-    for (int i = 5; i < space; i++)
-        printf(" ");
-    printf("%d\n", root->value);
-
-    printTree(root->left, space);
+  in_order(node->left);
+  printf("%d ", node->value);
+  in_order(node->right);
 }
 
-void freeBST(BSTNode *root) {
-    if (!root)
-        return;
-
-    freeBST(root->left);
-    freeBST(root->right);
-    free(root);
+void pre_order(Node *node) {
+  if (!node)
+    return;
+  printf("%d ", node->value);
+  pre_order(node->left);
+  pre_order(node->right);
 }
 
-int main() {
+void post_order(Node *node) {
+  if (!node)
+    return;
+  post_order(node->left);
+  post_order(node->right);
+  printf("%d ", node->value);
+}
 
-    int values[] = {50, 30, 70, 20, 40, 60, 80};
 
-    int size = sizeof(values) / sizeof(*values);
+int main(void) {
 
-    struct BSTNode *root = NULL;
-    for (int i = 0; i < size; i++)
-        root = insert(root, values[i]);
+  int values[] = {5, 3, 7, 2, 4, 6, 8};
 
-    printf("Inorder traversal (should be sorted): ");
-    inorderTraversal(root);
-    printf("\n");
+  Node *root = NULL;
 
-    printf("Preorder traversal: ");
-    preorderTraversal(root);
-    printf("\n");
+  for (int i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
+    root = insert(root, values[i]);
+  }
 
-    printf("Tree structure:\n");
-    printTree(root, 0);
+  Node *found = find(root, 7);
 
-    freeBST(root);
+  printf("%d\n", found->value);
 
-    return 0;
+  printf("In order: ");
+  in_order(root);
+  printf("\n");
+
+  printf("Pre order: ");
+  pre_order(root);
+  printf("\n");
+
+  printf("Post order: ");
+  post_order(root);
+  printf("\n");
+
+  free_BST(root);
+
+  return 0;
 }
